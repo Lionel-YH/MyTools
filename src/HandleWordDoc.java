@@ -23,23 +23,23 @@ public class HandleWordDoc
             while (it.hasNext()) {
                 Table tb = (Table) it.next();
                 //迭代行，默认从0开始
-                for (int i = 22; i < tb.numRows(); i++) {
+                for (int i = 0; i < tb.numRows(); i++) {
                     TableRow tr = tb.getRow(i);
                     //迭代列，默认从0开始
-                    for (int j = 2; j < tr.numCells(); j++) {
+                    for (int j = 0; j < tr.numCells(); j++) {
                         TableCell td = tr.getCell(j);//取得单元格
                         //取得单元格的内容
                         for(int k=0;k<td.numParagraphs();k++){
-                            System.out.println(k);
+//                            System.out.println(k);
                             Paragraph para =td.getParagraph(k);
                             String s = para.text();
                             System.out.println(s);
                         } //end for
-                        System.out.println("==============");
+/*                        System.out.println("==============");
                         System.out.println(td.getParagraph(0).text());
                         System.out.println(td.getParagraph(1).text());
                         System.out.println(td.getParagraph(2).text());
-                        System.out.println("==============");
+                        System.out.println("==============");*/
                     }   //end for
                 }   //end for
             } //end while
