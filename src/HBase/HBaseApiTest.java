@@ -1,3 +1,6 @@
+package HBase;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -8,8 +11,6 @@ import org.apache.hadoop.hbase.security.access.UserPermission;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.log4j.Logger;
-
-import javax.swing.plaf.synth.SynthOptionPaneUI;
 import java.io.IOException;
 import java.util.*;
 
@@ -17,8 +18,8 @@ import java.util.*;
  * HBase实现类
  * Created by shiyufeng on 2017/4/25.
  */
-public class HBaseJdbcTest {
-    private static final Logger logger = Logger.getLogger(HBaseJdbcTest.class);
+public class HBaseApiTest {
+    private static final Logger logger = Logger.getLogger(HBaseApiTest.class);
     static Configuration configuration = null;
 
     static {
@@ -37,7 +38,7 @@ public class HBaseJdbcTest {
 
     public List<String> queryFamilies(Configuration configuration, String tableName) throws IOException {
         if (logger.isInfoEnabled()) {
-            logger.info("HBaseJdbcTest queryFamilies begin");
+            logger.info("HBase.HBaseApiTest queryFamilies begin");
         }
         HTable table = new HTable(configuration, tableName);
         HTableDescriptor desc = table.getTableDescriptor();
@@ -48,7 +49,7 @@ public class HBaseJdbcTest {
             list.add(hColumnDescriptor.getNameAsString());
         }
         if (logger.isInfoEnabled()) {
-            logger.info("HBaseJdbcTest queryFamilies end");
+            logger.info("HBase.HBaseApiTest queryFamilies end");
         }
         return list;
     }
@@ -88,7 +89,7 @@ public class HBaseJdbcTest {
             logger.info("HBaseServiceImpl grant begin");
         }
         System.out.println("HBaseServiceImpl getPerm begin1111");
-        Connection connection = ConnectionFactory.createConnection(HBaseJdbcTest.configuration);
+        Connection connection = ConnectionFactory.createConnection(HBaseApiTest.configuration);
         System.out.println("HBaseServiceImpl getPerm begin2222");
 
         return AccessControlClient.getUserPermissions(connection, tableRegex );
@@ -107,7 +108,7 @@ public class HBaseJdbcTest {
         }
         TableName tableName1 = TableName.valueOf(tableName);
         System.out.println("HBaseServiceImpl grant begin1111");
-        Connection connection = ConnectionFactory.createConnection(HBaseJdbcTest.configuration);
+        Connection connection = ConnectionFactory.createConnection(HBaseApiTest.configuration);
         System.out.println("HBaseServiceImpl grant begin2222");
         AccessControlClient.grant(connection, tableName1, userName, Bytes.toBytes(family), Bytes.toBytes(qual), actions);
         if (logger.isInfoEnabled()) {
@@ -120,7 +121,7 @@ public class HBaseJdbcTest {
             logger.info("HBaseServiceImpl grant begin");
         }
         System.out.println("HBaseServiceImpl grant begin1111");
-        Connection connection = ConnectionFactory.createConnection(HBaseJdbcTest.configuration);
+        Connection connection = ConnectionFactory.createConnection(HBaseApiTest.configuration);
         System.out.println("HBaseServiceImpl grant begin2222");
         AccessControlClient.grant(connection, namespace, userName, actions);
         if (logger.isInfoEnabled()) {
@@ -332,19 +333,19 @@ public class HBaseJdbcTest {
     }
 
     public static void main(String[] args) {
-        HBaseJdbcTest ht = new HBaseJdbcTest();
+        HBaseApiTest ht = new HBaseApiTest();
         List<String > result = new ArrayList<String>();
         List<UserPermission> upList = null;
         try{
-//           result = ht.queryFamilies(HBaseJdbcTest.configuration,"unsensitive");
-//            ht.grant(HBaseJdbcTest.configuration,"unsensitive","WangJiebin","info","*", Permission.Action.CREATE);
-//            ht.grant(HBaseJdbcTest.configuration,"default","WangJiebin",Permission.Action.READ);
+//           result = ht.queryFamilies(HBase.HBaseApiTest.configuration,"unsensitive");
+//            ht.grant(HBase.HBaseApiTest.configuration,"unsensitive","WangJiebin","info","*", Permission.Action.CREATE);
+//            ht.grant(HBase.HBaseApiTest.configuration,"default","WangJiebin",Permission.Action.READ);
             String[] groups = {"hbase"};
             User user = new User.SecureHadoopUser(UserGroupInformation.createUserForTesting("hbase", groups));
-            Connection hbaseConn  = ConnectionFactory.createConnection(HBaseJdbcTest.configuration,user);
-//            upList = ht.getPermissions(HBaseJdbcTest.configuration,"@default");
+            Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration,user);
+//            upList = ht.getPermissions(HBase.HBaseApiTest.configuration,"@default");
             Permission.Action actions = Permission.Action.READ;
-            ht.revoke(HBaseJdbcTest.configuration,"unsensitive","WangJiebin","", "", actions);
+            ht.revoke(HBaseApiTest.configuration,"unsensitive","WangJiebin","", "", actions);
             System.out.println("执行成功！");
         }catch (IOException e){
             e.printStackTrace();

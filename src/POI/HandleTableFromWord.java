@@ -1,3 +1,5 @@
+package POI;
+
 import java.io.FileInputStream;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.usermodel.Paragraph;
@@ -10,7 +12,7 @@ import org.apache.poi.hwpf.usermodel.TableRow;
 
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
-public class HandleWordDoc
+public class HandleTableFromWord
 {
     public static void main(String[] args) {
         try{

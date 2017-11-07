@@ -1,7 +1,6 @@
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import sun.misc.BASE64Decoder;
-
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.util.*;
