@@ -15,7 +15,16 @@ import java.util.regex.Pattern;
  *
  */
 public class StringUtils extends org.apache.commons.lang.StringUtils{
-	
+
+	public static void main(String[] args){
+		Set<String> setOne = new HashSet<>();
+		Set<String> setTwo = new HashSet<>();
+		String str = new String("first");
+		setOne.add("first");
+		setTwo.add(str);
+		System.out.println(setOne.contains("first"));
+		System.out.println(setTwo.contains("first"));
+	}
 	/**
 	 * 一次性判断多个或单个对象为空。
 	 * @param objects

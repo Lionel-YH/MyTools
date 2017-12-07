@@ -1,16 +1,16 @@
 package HBase;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.security.User;
 import org.apache.hadoop.hbase.security.access.AccessControlClient;
 import org.apache.hadoop.hbase.security.access.Permission;
 import org.apache.hadoop.hbase.security.access.UserPermission;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.log4j.Logger;
+
+import javax.security.auth.Subject;
 import java.io.IOException;
 import java.util.*;
 
@@ -21,11 +21,33 @@ import java.util.*;
 public class HBaseApiTest {
     private static final Logger logger = Logger.getLogger(HBaseApiTest.class);
     static Configuration configuration = null;
+    static String ip = "172.16.21.68,172.16.21.69,172.16.21.70,172.16.21.71";
+    static String port = "2181";
 
     static {
-        configuration = HBaseConfiguration.create();
-        configuration.set("hbase.zookeeper.quorum", "172.16.21.68");
+        Configuration conf = new Configuration();
+        conf.set("hbase.zookeeper.property.maxclientcnxns", "300");
         System.setProperty("hadoop.home.dir", "D:\\Develop\\hadoop-2.7.4");
+        conf.set("hbase.ipc.client.socket.timeout.connect","1000");
+        conf.set("zookeeper.session.timeout", "500");
+        conf.set("hbase.regionserver.handler.count", "500");
+        System.setProperty("java.security.krb5.conf","D:/krb5.conf");
+        conf.set("hadoop.security.authentication","kerberos");
+        conf.set("hbase.master.kerberos.principal","hbase/_HOST@AISINO.COM");//从Hbase-site.xml文件中获取配置信息
+        conf.set("hbase.regionserver.kerberos.principal","hbase/_HOST@AISINO.COM");//从Hbase-site.xml文件中获取配置信息
+        conf.set("hbase.zookeeper.property.clientPort",port);
+        conf.set("hbase.security.authentication","kerberos");
+        conf.set("hbase.zookeeper.quorum",ip);
+        UserGroupInformation.setConfiguration(conf);
+
+        //kerberos认证用户部分,必须使用此方法登录，不然会连接不上
+        try {
+            UserGroupInformation.loginUserFromKeytab("hbase/bin01.novalocal@AISINO.COM","D:/hbase.keytab");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        configuration = HBaseConfiguration.create(conf);
     }
 
     /**
@@ -57,14 +79,14 @@ public class HBaseApiTest {
     /**
      * 查询所有表
      *
-     * @param configuration
+     * @param hbaseConn
      */
 
-    public List<String> queryTable(Configuration configuration) throws IOException {
+    public List<String> queryTable(Connection hbaseConn) throws IOException {
         if (logger.isInfoEnabled()) {
             logger.info("HBaseServiceImpl queryTable begin");
         }
-        HBaseAdmin admin = new HBaseAdmin(configuration);
+        HBaseAdmin admin = new HBaseAdmin(hbaseConn);
         TableName[] names = admin.listTableNames();
         List<String> list = new ArrayList<String>();
         for (TableName name : names) {
@@ -80,19 +102,18 @@ public class HBaseApiTest {
     /**
      * 查询权限
      *
-     * @param configuration 配置
+     * @param hbaseConn 配置
      * @param tableRegex  表名
      */
 
-    public List<UserPermission> getPermissions(Configuration configuration, String tableRegex) throws Throwable {
+    public List<UserPermission> getPermissions(Connection hbaseConn, String tableRegex) throws Throwable {
         if (logger.isInfoEnabled()) {
             logger.info("HBaseServiceImpl grant begin");
         }
         System.out.println("HBaseServiceImpl getPerm begin1111");
-        Connection connection = ConnectionFactory.createConnection(HBaseApiTest.configuration);
         System.out.println("HBaseServiceImpl getPerm begin2222");
 
-        return AccessControlClient.getUserPermissions(connection, tableRegex );
+        return AccessControlClient.getUserPermissions(hbaseConn, tableRegex );
     }
 
     /**
@@ -336,27 +357,53 @@ public class HBaseApiTest {
         HBaseApiTest ht = new HBaseApiTest();
         List<String > result = new ArrayList<String>();
         List<UserPermission> upList = null;
+        Subject sb = new Subject();
         try{
-//           result = ht.queryFamilies(HBase.HBaseApiTest.configuration,"unsensitive");
-//            ht.grant(HBase.HBaseApiTest.configuration,"unsensitive","WangJiebin","info","*", Permission.Action.CREATE);
-//            ht.grant(HBase.HBaseApiTest.configuration,"default","WangJiebin",Permission.Action.READ);
+           /*
+           result = ht.queryFamilies(HBase.HBaseApiTest.configuration,"/*unsensitive");
+            ht.grant(HBase.HBaseApiTest.configuration,"unsensitive","WangJiebin","info","*", Permission.Action.CREATE);
+            ht.grant(HBase.HBaseApiTest.configuration,"default","WangJiebin",Permission.Action.READ);
+            Permission.Action actions = Permission.Action.READ;
+            ht.revoke(HBaseApiTest.configuration,"unsensitive","WangJiebin","", "", actions);
+            */
+            /*
+            //未开启kerberos时，使用此方法切换用户，不然程序会默认使用运行程序的系统当前用户
             String[] groups = {"hbase"};
             User user = new User.SecureHadoopUser(UserGroupInformation.createUserForTesting("hbase", groups));
             Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration,user);
-//            upList = ht.getPermissions(HBase.HBaseApiTest.configuration,"@default");
-            Permission.Action actions = Permission.Action.READ;
-            ht.revoke(HBaseApiTest.configuration,"unsensitive","WangJiebin","", "", actions);
+            */
+            Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration);
+            upList = ht.getPermissions(hbaseConn,"unsensitive");
+
             System.out.println("执行成功！");
-        }catch (IOException e){
-            e.printStackTrace();
-            System.out.println("执行失败");
         }catch (Throwable throwable){
             throwable.printStackTrace();
             System.out.println("执行失败");
         }
-        System.out.println("执行成功！1111111111111");
-        for(String str:result){
-            System.out.println(str);
+        for(UserPermission up:upList){
+            System.out.println("User:" + new String(up.getUser()));
+            if(up.hasNamespace()){
+                System.out.println("Namespace:" + up.getNamespace());
+            }
+            if(up.hasTable()){
+                System.out.println("Table:" + up.getTableName().toString());
+            }
+            if(up.hasFamily()){
+                System.out.println("Family:" + new String(up.getFamily()));
+            }
+            if(up.hasQualifier()){
+                System.out.println("Qualifier:" + new String(up.getQualifier()));
+            }
+            Permission.Action[] actions = up.getActions();
+            for(Permission.Action action:actions){
+                System.out.print(action.toString());
+                System.out.print("--");
+            }
+            System.out.println();
         }
+        System.out.println("执行成功！1111111111111");
+//        for(String str:result){
+//            System.out.println(str);
+//        }
     }
 }
