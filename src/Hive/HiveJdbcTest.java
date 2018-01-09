@@ -15,7 +15,6 @@ public class HiveJdbcTest {
      * @param args 
      */  
     public static void main(String[] args) {  
-        // TODO Auto-generated method stub  
     	try {
     		Class.forName(driverName);
     		} catch (ClassNotFoundException e) {
@@ -29,7 +28,7 @@ public class HiveJdbcTest {
         conf.setBoolean("hadoop.security.authorization", true);
         conf.set("hadoop.security.authentication", "Kerberos");
         System.setProperty("java.security.krb5.conf","D:/krb5.conf");
-        System.setProperty("hadoop.home.dir", "D:\\Develop\\hadoop-2.7.4");
+        System.setProperty("hadoop.home.dir", "D:/Develop/hadoop-2.7.4");
 //        conf.set("keytab.file" , "/root/keytabs/hive.keytab" );
 //        conf.set("keytab.file" , "D:/hive.keytab" );
 //        System.setProperty("java.security.krb5.conf","/etc/krb5.conf");
@@ -38,8 +37,7 @@ public class HiveJdbcTest {
             UserGroupInformation.setConfiguration(conf);
             UserGroupInformation.loginUserFromKeytab("hive/bin01.novalocal@AISINO.COM","D:/hive.keytab");
         } catch (IOException e) {  
-            // TODO Auto-generated catch block  
-            e.printStackTrace();  
+            e.printStackTrace();
         }
 
         //普通验证
@@ -66,8 +64,7 @@ public class HiveJdbcTest {
             }
             } catch (Exception e) {
             e.printStackTrace();  
-            // TODO: handle exception  
-        }  
+        }
   
     }  
   
