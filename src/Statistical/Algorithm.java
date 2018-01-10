@@ -188,6 +188,28 @@ public class Algorithm {
         return Qn;
     }
 
+    public Pair<Double,Double> confirm(double[] arrayX,double[] arrayY,double x_crm,double u_crm) {
+        int size = arrayX.length;
+        double[] d = new double[size];
+        for(int i=0;i<size;i++){
+            d[i]=Arith.sub(arrayX[i],arrayY[i]);
+        }
+        double d_mean=Arith.div(sum(d),size);
+        double x_pt = Arith.add(x_crm,d_mean);
+        double s2d = Arith.div(calErrorSquare(d,d_mean),Math.sqrt(size));
+        double u2d = Arith.div(s2d,size-1);
+        double u_char = Math.sqrt(Arith.add(Arith.mul(u_crm,u_crm),Arith.mul(u2d,u2d)));
+        return new Pair<>(x_pt,u_char);
+    }
+
+    public Pair<Double,Double> confirm(double[] array) {
+        Pair<Double,Double> pair = methodA(array);
+        int size = array.length;
+        double s_ = pair.getValue();
+        double uncertain =  Arith.mul(1.25,Arith.div(s_,Math.sqrt(size)));
+        return new Pair<>(1.1,uncertain);
+    }
+
 
     public double sum(double[] array){
         double result = 0.0;
@@ -261,7 +283,8 @@ public class Algorithm {
 //        System.out.println("calMADe:"+ag.calMADe(array));
 //        System.out.println("methodA:"+ag.methodA(array));
 //        System.out.println("methodS:"+ag.methodS(matrix));
-        System.out.println("methodQn:"+ag.methodQn(array));
+//        System.out.println("methodQn:"+ag.methodQn(array));
+        System.out.println("confirm:"+ag.confirm(array,matrix[0],1.454,2.067));
         System.out.println("=========");
         System.out.println(11/2);
     }
