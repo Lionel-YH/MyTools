@@ -205,9 +205,10 @@ public class Algorithm {
     public Pair<Double,Double> confirm(double[] array) {
         Pair<Double,Double> pair = methodA(array);
         int size = array.length;
+        double x_pt = pair.getKey();
         double s_ = pair.getValue();
         double uncertain =  Arith.mul(1.25,Arith.div(s_,Math.sqrt(size)));
-        return new Pair<>(1.1,uncertain);
+        return new Pair<>(x_pt,uncertain);
     }
 
 
@@ -284,7 +285,8 @@ public class Algorithm {
 //        System.out.println("methodA:"+ag.methodA(array));
 //        System.out.println("methodS:"+ag.methodS(matrix));
 //        System.out.println("methodQn:"+ag.methodQn(array));
-        System.out.println("confirm:"+ag.confirm(array,matrix[0],1.454,2.067));
+//        System.out.println("confirm:"+ag.confirm(array,matrix[0],1.454,2.067));
+        System.out.println("confirm:"+ag.confirm(array));
         System.out.println("=========");
         System.out.println(11/2);
     }
