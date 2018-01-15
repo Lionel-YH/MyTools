@@ -3,7 +3,6 @@ import java.util.Scanner;
 public class Practice {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		Scanner cin = new Scanner(System.in);
         String str=null;
         while(cin.hasNextLine())
@@ -12,7 +11,7 @@ public class Practice {
             char[] array = str.toCharArray();
             String result = sortByAscii(array);
             System.out.println(compact(result));
-        }        
+        }
 	}
 	
 	public static String compact(String result){
