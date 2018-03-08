@@ -3,6 +3,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.security.User;
 import org.apache.hadoop.hbase.security.access.AccessControlClient;
 import org.apache.hadoop.hbase.security.access.Permission;
 import org.apache.hadoop.hbase.security.access.UserPermission;
@@ -21,51 +22,68 @@ import java.util.*;
 public class HBaseApiTest {
     private static final Logger logger = Logger.getLogger(HBaseApiTest.class);
     static Configuration configuration = null;
-    static String ip = "172.16.21.68,172.16.21.69,172.16.21.70,172.16.21.71";
+    static String ip = "172.26.21.101,172.26.21.102,172.26.21.103";
     static String port = "2181";
+    static boolean krbOpen = false;
 
     static {
-        Configuration conf = new Configuration();
-        conf.set("hbase.zookeeper.property.maxclientcnxns", "300");
-        System.setProperty("hadoop.home.dir", "D:\\Develop\\hadoop-2.7.4");
-        conf.set("hbase.ipc.client.socket.timeout.connect","1000");
-        conf.set("zookeeper.session.timeout", "500");
-        conf.set("hbase.regionserver.handler.count", "500");
-        System.setProperty("java.security.krb5.conf","D:/krb5.conf");
-        conf.set("hadoop.security.authentication","kerberos");
-        conf.set("hbase.master.kerberos.principal","hbase/_HOST@AISINO.COM");//从Hbase-site.xml文件中获取配置信息
-        conf.set("hbase.regionserver.kerberos.principal","hbase/_HOST@AISINO.COM");//从Hbase-site.xml文件中获取配置信息
-        conf.set("hbase.zookeeper.property.clientPort",port);
-        conf.set("hbase.security.authentication","kerberos");
-        conf.set("hbase.zookeeper.quorum",ip);
-        UserGroupInformation.setConfiguration(conf);
+        if(krbOpen){
+            Configuration conf = new Configuration();
+            conf.set("hbase.zookeeper.property.maxclientcnxns", "300");
+            System.setProperty("hadoop.home.dir", "D:\\Develop\\hadoop-2.7.4");
+            conf.set("hbase.ipc.client.socket.timeout.connect","1000");
+            conf.set("zookeeper.session.timeout", "500");
+            conf.set("hbase.regionserver.handler.count", "500");
+            System.setProperty("java.security.krb5.conf","D:/krb5.conf");
+            conf.set("hadoop.security.authentication","kerberos");
+            conf.set("hbase.master.kerberos.principal","hbase/_HOST@AISINO.COM");//从Hbase-site.xml文件中获取配置信息
+            conf.set("hbase.regionserver.kerberos.principal","hbase/_HOST@AISINO.COM");//从Hbase-site.xml文件中获取配置信息
+            conf.set("hbase.zookeeper.property.clientPort",port);
+            conf.set("hbase.security.authentication","kerberos");
+            conf.set("hbase.zookeeper.quorum",ip);
+            UserGroupInformation.setConfiguration(conf);
 
-        //kerberos认证用户部分,必须使用此方法登录，不然会连接不上
-        try {
-            UserGroupInformation.loginUserFromKeytab("hbase/bin01.novalocal@AISINO.COM","D:/hbase.keytab");
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            //kerberos认证用户部分,必须使用此方法登录，不然会连接不上
+            try {
+                UserGroupInformation.loginUserFromKeytab("hbase/bin01.novalocal@AISINO.COM","D:/hbase.keytab");
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            configuration = HBaseConfiguration.create(conf);
+        }else{
+            Configuration conf = new Configuration();
+            conf.set("hbase.zookeeper.property.maxclientcnxns", "300");
+            System.setProperty("hadoop.home.dir", "D:\\Develop\\hadoop-2.7.4");
+            conf.set("hbase.ipc.client.socket.timeout.connect","1000");
+            conf.set("zookeeper.session.timeout", "500");
+            conf.set("hbase.regionserver.handler.count", "500");
+            conf.set("hbase.zookeeper.property.clientPort",port);
+            conf.set("hbase.zookeeper.quorum",ip);
+            UserGroupInformation.setConfiguration(conf);
+            configuration = HBaseConfiguration.create(conf);
         }
-        configuration = HBaseConfiguration.create(conf);
+
     }
 
     /**
      * 根据表名，查询列族
      *
-     * @param configuration
+     * @param hbaseConn
      * @param tableName
      * @return
      */
 
-    public List<String> queryFamilies(Configuration configuration, String tableName) throws IOException {
+    public List<String> queryFamilies(Connection hbaseConn, String tableName) throws IOException {
         if (logger.isInfoEnabled()) {
             logger.info("HBase.HBaseApiTest queryFamilies begin");
         }
-        HTable table = new HTable(configuration, tableName);
+        TableName tableNameObj = TableName.valueOf(tableName);
+        Table table = hbaseConn.getTable(tableNameObj);
+//        HTable table = new HTable(configuration, tableName);
         HTableDescriptor desc = table.getTableDescriptor();
         Collection<HColumnDescriptor> collection = desc.getFamilies();
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         for (HColumnDescriptor hColumnDescriptor : collection) {
             System.out.println(hColumnDescriptor.getNameAsString());
             list.add(hColumnDescriptor.getNameAsString());
@@ -86,9 +104,10 @@ public class HBaseApiTest {
         if (logger.isInfoEnabled()) {
             logger.info("HBaseServiceImpl queryTable begin");
         }
-        HBaseAdmin admin = new HBaseAdmin(hbaseConn);
+        Admin admin = hbaseConn.getAdmin();
+//        HBaseAdmin admin = new HBaseAdmin(hbaseConn);
         TableName[] names = admin.listTableNames();
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         for (TableName name : names) {
             System.out.println(name.getNameAsString());
             list.add(name.getNameAsString());
@@ -111,8 +130,6 @@ public class HBaseApiTest {
             logger.info("HBaseServiceImpl grant begin");
         }
         System.out.println("HBaseServiceImpl getPerm begin1111");
-        System.out.println("HBaseServiceImpl getPerm begin2222");
-
         return AccessControlClient.getUserPermissions(hbaseConn, tableRegex );
     }
 
@@ -123,28 +140,26 @@ public class HBaseApiTest {
      * @param actions  权限
      */
 
-    public void grant(Configuration configuration, String tableName,String userName, String family,String qual,Permission.Action... actions) throws Throwable {
+    public void grant(Connection hbaseConn, String tableName,String userName, String family,String qual,Permission.Action... actions) throws Throwable {
         if (logger.isInfoEnabled()) {
             logger.info("HBaseServiceImpl grant begin");
         }
-        TableName tableName1 = TableName.valueOf(tableName);
+        TableName tableNameObj = TableName.valueOf(tableName);
         System.out.println("HBaseServiceImpl grant begin1111");
-        Connection connection = ConnectionFactory.createConnection(HBaseApiTest.configuration);
         System.out.println("HBaseServiceImpl grant begin2222");
-        AccessControlClient.grant(connection, tableName1, userName, Bytes.toBytes(family), Bytes.toBytes(qual), actions);
+        AccessControlClient.grant(hbaseConn, tableNameObj, userName, Bytes.toBytes(family), Bytes.toBytes(qual), actions);
         if (logger.isInfoEnabled()) {
             logger.info("HBaseServiceImpl grant end");
         }
     }
 
-    public void grant(Configuration configuration, String namespace,String userName, Permission.Action... actions) throws Throwable {
+    public void grant(Connection hbaseConn, String namespace,String userName, Permission.Action... actions) throws Throwable {
         if (logger.isInfoEnabled()) {
             logger.info("HBaseServiceImpl grant begin");
         }
         System.out.println("HBaseServiceImpl grant begin1111");
-        Connection connection = ConnectionFactory.createConnection(HBaseApiTest.configuration);
         System.out.println("HBaseServiceImpl grant begin2222");
-        AccessControlClient.grant(connection, namespace, userName, actions);
+        AccessControlClient.grant(hbaseConn, namespace, userName, actions);
         if (logger.isInfoEnabled()) {
             logger.info("HBaseServiceImpl grant end");
         }
@@ -157,13 +172,14 @@ public class HBaseApiTest {
      * @param actions  权限
      */
 
-    public void revoke(Configuration configuration, String tableName,String userName, String family,String qual,Permission.Action... actions) throws Throwable {
+    public void revoke(Connection hbaseConn, String tableName,String userName, String family,String qual,Permission.Action... actions) throws Throwable {
         if (logger.isInfoEnabled()) {
             logger.info("HBaseServiceImpl revoke begin");
         }
-        HTable table = new HTable(configuration, Bytes.toBytes(tableName));
+        TableName tableNameObj = TableName.valueOf(tableName);
+        Table table = hbaseConn.getTable(tableNameObj);
         TableName tableName1 = table.getName();
-        AccessControlClient.revoke(configuration, tableName1, userName, Bytes.toBytes(family), Bytes.toBytes(qual), actions);
+        AccessControlClient.revoke(hbaseConn, tableName1, userName, Bytes.toBytes(family), Bytes.toBytes(qual), actions);
         if (logger.isInfoEnabled()) {
             logger.info("HBaseServiceImpl revoke end");
         }
@@ -199,13 +215,14 @@ public class HBaseApiTest {
      * @param value     值
      */
 
-    public void add(String tableName, String rowKey, String family, String qualifier, String value) throws IOException {
-        HTable table = new HTable(configuration, Bytes.toBytes(tableName));
+    public void add(Connection hbaseConn, String tableName, String rowKey, String family, String qualifier, String value) throws IOException {
+        TableName tableNameObj = TableName.valueOf(tableName);
+        Table table = hbaseConn.getTable(tableNameObj);
         // 需要插入数据库的数据集合
-        List<Put> putList = new ArrayList<Put>();
+        List<Put> putList = new ArrayList<>();
         Put put = new Put(Bytes.toBytes(rowKey));
         // 列族、列、值
-        put.add(Bytes.toBytes(family), Bytes.toBytes(qualifier), Bytes.toBytes(value));
+        put.addColumn(Bytes.toBytes(family), Bytes.toBytes(qualifier), Bytes.toBytes(value));
         putList.add(put);
         // 将数据集合插入到数据库
         table.put(putList);
@@ -220,8 +237,9 @@ public class HBaseApiTest {
      * @throws java.io.IOException
      */
 
-    public void delete(String tableName, String rowKey) throws IOException {
-        HTable table = new HTable(configuration, Bytes.toBytes(tableName));
+    public void delete(Connection hbaseConn, String tableName, String rowKey) throws IOException {
+        TableName tableNameObj = TableName.valueOf(tableName);
+        Table table = hbaseConn.getTable(tableNameObj);
         Delete deleteAll = new Delete(Bytes.toBytes(rowKey));
         table.delete(deleteAll);
         System.out.println("all columns are deleted!");
@@ -237,17 +255,18 @@ public class HBaseApiTest {
      * @throws java.io.IOException
      */
 
-    public Result find(String tableName, String rowKey, String family, String qualifier, String value) throws IOException {
-        HTable table = new HTable(configuration, Bytes.toBytes(tableName));
+    public Result find(Connection hbaseConn, String tableName, String rowKey, String family, String qualifier) throws IOException {
+        TableName tableNameObj = TableName.valueOf(tableName);
+        Table table = hbaseConn.getTable(tableNameObj);
         // 根据tableName查询
         if (StringUtils.isBlank(rowKey) && StringUtils.isBlank(family) && StringUtils.isBlank(qualifier)) {
             ResultScanner rs = table.getScanner(new Scan());
             for (Result r : rs) {
-                System.out.println("获得到rowkey:" + new String(r.getRow()));
-                for (KeyValue keyValue : r.raw()) {
-                    System.out.println("列族：" + new String(keyValue.getFamily())
-                            + "====" + new String(keyValue.getQualifier())
-                            + "====值:" + new String(keyValue.getValue()));
+                System.out.println("获得到rowkey:" + Bytes.toString(r.getRow()));
+                for (Cell cell : r.rawCells()) {
+                    System.out.println("列族：" + Bytes.toString(cell.getFamilyArray())
+                            + "====" + Bytes.toString(cell.getQualifierArray())
+                            + "====值:" + Bytes.toString(cell.getValueArray()));
                 }
             }
         }
@@ -256,10 +275,10 @@ public class HBaseApiTest {
             Get scan = new Get(rowKey.getBytes());
             Result r = table.get(scan);
             System.out.println("获得到rowkey:" + new String(r.getRow()));
-            for (KeyValue keyValue : r.raw()) {
-                System.out.println("列族：" + new String(keyValue.getFamily())
-                        + "====" + new String(keyValue.getQualifier())
-                        + "====值:" + new String(keyValue.getValue()));
+            for (Cell cell : r.rawCells()) {
+                System.out.println("列族：" + new String(cell.getFamilyArray())
+                        + "====" + new String(cell.getQualifierArray())
+                        + "====值:" + new String(cell.getValueArray()));
             }
         }
         return null;
@@ -275,24 +294,26 @@ public class HBaseApiTest {
      * @throws java.io.IOException
      */
 
-    public Result findByQualifier(String tableName, String rowKey, String family, String qualifier) throws IOException {
-        HTable table = new HTable(configuration, Bytes.toBytes(tableName));
+    public Result findByQualifier(Connection hbaseConn, String tableName, String rowKey, String family, String qualifier) throws IOException {
+        TableName tableNameObj = TableName.valueOf(tableName);
+        Table table = hbaseConn.getTable(tableNameObj);
         Get get = new Get(Bytes.toBytes(rowKey));
         get.addColumn(Bytes.toBytes(family), Bytes.toBytes(qualifier)); // 获取指定列族和列修饰符对应的列
         Result result = table.get(get);
-        for (KeyValue kv : result.list()) {
-            System.out.println("family:" + Bytes.toString(kv.getFamily()));
-            System.out.println("qualifier:" + Bytes.toString(kv.getQualifier()));
-            System.out.println("value:" + Bytes.toString(kv.getValue()));
-            System.out.println("Timestamp:" + kv.getTimestamp());
+        for (Cell cell : result.listCells()) {
+            System.out.println("family:" + Bytes.toString(cell.getFamilyArray()));
+            System.out.println("qualifier:" + Bytes.toString(cell.getQualifierArray()));
+            System.out.println("value:" + Bytes.toString(cell.getValueArray()));
+            System.out.println("Timestamp:" + cell.getTimestamp());
             System.out.println("-------------------------------------------");
         }
         return result;
     }
 
 
-    public Result findByFamily(Configuration configuration,String tableName, String rowKey, String family) throws IOException {
-        HTable table = new HTable(configuration, Bytes.toBytes(tableName));
+    public Result findByFamily(Connection hbaseConn,String tableName, String rowKey, String family) throws IOException {
+        TableName tableNameObj = TableName.valueOf(tableName);
+        Table table = hbaseConn.getTable(tableNameObj);
         Get get = new Get(Bytes.toBytes(rowKey));
         get.addFamily(Bytes.toBytes(family)); // 获取指定列族和列修饰符对应的列
         Result result = table.get(get);
@@ -313,8 +334,9 @@ public class HBaseApiTest {
      * @param rowKey
      */
 
-    public Result findByRowKey(String tableName, String rowKey) throws IOException {
-        HTable table = new HTable(configuration, Bytes.toBytes(tableName));// 获取表
+    public Result findByRowKey(Connection hbaseConn, String tableName, String rowKey) throws IOException {
+        TableName tableNameObj = TableName.valueOf(tableName);
+        Table table = hbaseConn.getTable(tableNameObj);
         Get get = new Get(Bytes.toBytes(rowKey));
         Result result = table.get(get);
         for (KeyValue kv : result.list()) {
@@ -334,14 +356,15 @@ public class HBaseApiTest {
      * @param family    列族
      */
 
-    public boolean creatTable(String tableName, List<String> family) throws IOException {
+    public boolean creatTable(Connection hbaseConn, String tableName, List<String> family) throws IOException {
         boolean flag = false;
-        HBaseAdmin admin = new HBaseAdmin(configuration);
-        HTableDescriptor desc = new HTableDescriptor(tableName);
+        Admin admin = hbaseConn.getAdmin();
+        TableName tableNameObj = TableName.valueOf(tableName);
+        HTableDescriptor desc = new HTableDescriptor(tableNameObj);
         for (int i = 0; i < family.size(); i++) {
             desc.addFamily(new HColumnDescriptor(family.get(i)));
         }
-        if (admin.tableExists(tableName)) {
+        if (admin.tableExists(tableNameObj)) {
             System.out.println("table Exists!");
             flag = false;
             return flag;
@@ -355,9 +378,10 @@ public class HBaseApiTest {
 
     public static void main(String[] args) {
         HBaseApiTest ht = new HBaseApiTest();
-        List<String > result = new ArrayList<String>();
-        List<UserPermission> upList = null;
+        List<UserPermission> upList = new ArrayList<>();
         Subject sb = new Subject();
+        String[] groups = {"hbase"};
+        User user = new User.SecureHadoopUser(UserGroupInformation.createUserForTesting("hbase", groups));
         try{
            /*
            result = ht.queryFamilies(HBase.HBaseApiTest.configuration,"/*unsensitive");
@@ -372,9 +396,15 @@ public class HBaseApiTest {
             User user = new User.SecureHadoopUser(UserGroupInformation.createUserForTesting("hbase", groups));
             Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration,user);
             */
-            Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration);
-            upList = ht.getPermissions(hbaseConn,"unsensitive");
 
+            //krbOpen == false
+            Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration,user);
+            //krbOpen == true
+//            Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration);
+//            upList = ht.getPermissions(hbaseConn,"dw_hbase_nsr");
+            List<String> tables = ht.queryTable(hbaseConn);
+//            Result result = ht.find(hbaseConn,"dw_hbase_fp","","","");
+            System.out.println("=============");
             System.out.println("执行成功！");
         }catch (Throwable throwable){
             throwable.printStackTrace();
@@ -402,8 +432,5 @@ public class HBaseApiTest {
             System.out.println();
         }
         System.out.println("执行成功！1111111111111");
-//        for(String str:result){
-//            System.out.println(str);
-//        }
     }
 }
