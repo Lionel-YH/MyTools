@@ -402,7 +402,8 @@ public class HBaseApiTest {
             //krbOpen == true
 //            Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration);
 //            upList = ht.getPermissions(hbaseConn,"dw_hbase_nsr");
-            List<String> tables = ht.queryTable(hbaseConn);
+//            List<String> tables = ht.queryTable(hbaseConn);
+            List<String> familys = ht.queryFamilies(hbaseConn,"dw_hbase_nsr");
 //            Result result = ht.find(hbaseConn,"dw_hbase_fp","","","");
             System.out.println("=============");
             System.out.println("执行成功！");
