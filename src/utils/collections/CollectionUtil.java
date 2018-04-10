@@ -1,4 +1,4 @@
-package Collections;
+package utils.collections;
 
 import java.io.ObjectInputStream;
 import java.util.*;

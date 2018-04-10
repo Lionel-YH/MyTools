@@ -525,7 +525,7 @@ public class JdbcTest {
 		}
 		/*
 		 * try { // Class.forName(driverName); SimpleDateFormat formatter = new
-		 * SimpleDateFormat ("yyyyMMddHHmmss"); Date time3 =new Date(); String
+		 * SimpleDateFormat ("yyyyMMddHHmmss"); utils.Date time3 =new utils.Date(); String
 		 * filetime = formatter.format(time3); String [] shpath={
 		 * "hadoop fs -put /home/Fapiao/fapiaolog.log /user/Fapiao/logs/log_"
 		 * +filetime}; Process ps = Runtime.getRuntime().exec(shpath);

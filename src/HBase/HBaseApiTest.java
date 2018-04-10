@@ -22,19 +22,19 @@ import java.util.*;
 public class HBaseApiTest {
     private static final Logger logger = Logger.getLogger(HBaseApiTest.class);
     static Configuration configuration = null;
-    static String ip = "172.26.21.101,172.26.21.102,172.26.21.103";
+    static String ip = "172.16.21.68,172.16.21.69,172.16.21.70,172.16.21.71";
     static String port = "2181";
-    static boolean krbOpen = false;
+    static boolean krbOpen = true;
 
     static {
         if(krbOpen){
             Configuration conf = new Configuration();
             conf.set("hbase.zookeeper.property.maxclientcnxns", "300");
-            System.setProperty("hadoop.home.dir", "D:\\Develop\\hadoop-2.7.4");
+            System.setProperty("hadoop.home.dir", "D:\\Environment\\hadoop-2.7.4");
             conf.set("hbase.ipc.client.socket.timeout.connect","1000");
             conf.set("zookeeper.session.timeout", "500");
             conf.set("hbase.regionserver.handler.count", "500");
-            System.setProperty("java.security.krb5.conf","D:/krb5.conf");
+            System.setProperty("java.security.krb5.conf","D:\\Config\\keytab_68\\krb5.conf");
             conf.set("hadoop.security.authentication","kerberos");
             conf.set("hbase.master.kerberos.principal","hbase/_HOST@AISINO.COM");//从Hbase-site.xml文件中获取配置信息
             conf.set("hbase.regionserver.kerberos.principal","hbase/_HOST@AISINO.COM");//从Hbase-site.xml文件中获取配置信息
@@ -45,7 +45,7 @@ public class HBaseApiTest {
 
             //kerberos认证用户部分,必须使用此方法登录，不然会连接不上
             try {
-                UserGroupInformation.loginUserFromKeytab("hbase/bin01.novalocal@AISINO.COM","D:/hbase.keytab");
+                UserGroupInformation.loginUserFromKeytab("hbase/bin01.novalocal@AISINO.COM","D:\\Config\\keytab_68\\hbase.keytab");
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -54,7 +54,7 @@ public class HBaseApiTest {
         }else{
             Configuration conf = new Configuration();
             conf.set("hbase.zookeeper.property.maxclientcnxns", "300");
-            System.setProperty("hadoop.home.dir", "D:\\Develop\\hadoop-2.7.4");
+            System.setProperty("hadoop.home.dir", "D:\\Environment\\hadoop-2.7.4");
             conf.set("hbase.ipc.client.socket.timeout.connect","1000");
             conf.set("zookeeper.session.timeout", "500");
             conf.set("hbase.regionserver.handler.count", "500");
@@ -381,7 +381,7 @@ public class HBaseApiTest {
         List<UserPermission> upList = new ArrayList<>();
         Subject sb = new Subject();
         String[] groups = {"hbase"};
-        User user = new User.SecureHadoopUser(UserGroupInformation.createUserForTesting("hbase", groups));
+//        User user = new User.SecureHadoopUser(UserGroupInformation.createUserForTesting("hbase", groups));
         try{
            /*
            result = ht.queryFamilies(HBase.HBaseApiTest.configuration,"/*unsensitive");
@@ -398,12 +398,13 @@ public class HBaseApiTest {
             */
 
             //krbOpen == false
-            Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration,user);
+//            Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration,user);
+            Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration);
             //krbOpen == true
 //            Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration);
-//            upList = ht.getPermissions(hbaseConn,"dw_hbase_nsr");
+            upList = ht.getPermissions(hbaseConn,"unsensitive");
 //            List<String> tables = ht.queryTable(hbaseConn);
-            List<String> familys = ht.queryFamilies(hbaseConn,"dw_hbase_nsr");
+//            List<String> familys = ht.queryFamilies(hbaseConn,"dw_hbase_nsr");
 //            Result result = ht.find(hbaseConn,"dw_hbase_fp","","","");
             System.out.println("=============");
             System.out.println("执行成功！");

@@ -1,4 +1,4 @@
-package interview.uncompleted;
+package coding.uncompleted;
 import java.util.Scanner;
 
 public class RedeemByContribution {
