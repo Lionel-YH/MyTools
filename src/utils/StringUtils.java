@@ -274,7 +274,6 @@ public class StringUtils extends org.apache.commons.lang.StringUtils{
 			value = java.net.URLEncoder.encode(value,"utf-8");
 			return value ;
 		} catch (UnsupportedEncodingException e) {
-			LoggerUtils.error(StringUtils.class, "字符串转换为URLCode失败,value:" + value,e);
 			e.printStackTrace();
 			return null;
 		}    
@@ -289,7 +288,6 @@ public class StringUtils extends org.apache.commons.lang.StringUtils{
 			value = java.net.URLDecoder.decode(value,"utf-8");
 			return value ;
 		} catch (UnsupportedEncodingException e) {
-			LoggerUtils.error(StringUtils.class, "URLCode转换为字符串失败;value:" + value,e);
 			e.printStackTrace();
 			return null;
 		}  
