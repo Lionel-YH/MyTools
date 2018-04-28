@@ -7,7 +7,7 @@ public class Date2TimeStamp {
     /**
      * 时间戳转换成日期格式字符串
      * @param seconds 精确到秒的字符串
-     * @param formatStr
+     * @param format
      * @return
      */
     public static String timeStamp2Date(String seconds,String format) {
@@ -20,7 +20,7 @@ public class Date2TimeStamp {
     }
     /**
      * 日期格式字符串转换成时间戳
-     * @param date 字符串日期
+     * @param date_str 字符串日期
      * @param format 如：yyyy-MM-dd HH:mm:ss
      * @return
      */
