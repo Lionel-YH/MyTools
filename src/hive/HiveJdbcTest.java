@@ -1,4 +1,4 @@
-package Hive;
+package hive;
 
 import java.io.IOException;
 import java.sql.Connection;  

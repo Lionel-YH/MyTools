@@ -1,4 +1,4 @@
-package Statistical;
+package statistical;
 
 import java.io.*;
 import java.math.BigDecimal;

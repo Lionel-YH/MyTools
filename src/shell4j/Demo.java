@@ -1,4 +1,4 @@
-package Shell4Java;
+package shell4j;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

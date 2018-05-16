@@ -1,11 +1,8 @@
-package Statistical;
+package statistical;
 
 import javafx.util.Pair;
-import org.python.icu.text.ArabicShaping;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

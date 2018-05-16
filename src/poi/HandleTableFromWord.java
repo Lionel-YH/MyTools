@@ -1,4 +1,4 @@
-package POI;
+package poi;
 
 import java.io.FileInputStream;
 import org.apache.poi.hwpf.HWPFDocument;

@@ -1,4 +1,4 @@
-package Shell4Java.JSch;
+package shell4j.JSch;
 
 /* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
 /**

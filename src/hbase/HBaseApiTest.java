@@ -1,9 +1,8 @@
-package HBase;
+package hbase;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.security.User;
 import org.apache.hadoop.hbase.security.access.AccessControlClient;
 import org.apache.hadoop.hbase.security.access.Permission;
 import org.apache.hadoop.hbase.security.access.UserPermission;
@@ -76,7 +75,7 @@ public class HBaseApiTest {
 
     public List<String> queryFamilies(Connection hbaseConn, String tableName) throws IOException {
         if (logger.isInfoEnabled()) {
-            logger.info("HBase.HBaseApiTest queryFamilies begin");
+            logger.info("hbase.HBaseApiTest queryFamilies begin");
         }
         TableName tableNameObj = TableName.valueOf(tableName);
         Table table = hbaseConn.getTable(tableNameObj);
@@ -89,7 +88,7 @@ public class HBaseApiTest {
             list.add(hColumnDescriptor.getNameAsString());
         }
         if (logger.isInfoEnabled()) {
-            logger.info("HBase.HBaseApiTest queryFamilies end");
+            logger.info("hbase.HBaseApiTest queryFamilies end");
         }
         return list;
     }
@@ -376,6 +375,21 @@ public class HBaseApiTest {
         }
     }
 
+    /**
+     * 创建命名空间
+     *
+     * @param nsName 命名空间名称
+     */
+
+    public boolean creatNamespace(Connection hbaseConn, String nsName) throws IOException {
+        boolean flag = false;
+        Admin admin = hbaseConn.getAdmin();
+        admin.createNamespace(NamespaceDescriptor.create(nsName).build());
+        admin.close();
+        flag = true;
+        return flag;
+    }
+
     public static void main(String[] args) {
         HBaseApiTest ht = new HBaseApiTest();
         List<UserPermission> upList = new ArrayList<>();
@@ -384,9 +398,9 @@ public class HBaseApiTest {
 //        User user = new User.SecureHadoopUser(UserGroupInformation.createUserForTesting("hbase", groups));
         try{
            /*
-           result = ht.queryFamilies(HBase.HBaseApiTest.configuration,"/*unsensitive");
-            ht.grant(HBase.HBaseApiTest.configuration,"unsensitive","WangJiebin","info","*", Permission.Action.CREATE);
-            ht.grant(HBase.HBaseApiTest.configuration,"default","WangJiebin",Permission.Action.READ);
+           result = ht.queryFamilies(hbase.HBaseApiTest.configuration,"/*unsensitive");
+            ht.grant(hbase.HBaseApiTest.configuration,"unsensitive","WangJiebin","info","*", Permission.Action.CREATE);
+            ht.grant(hbase.HBaseApiTest.configuration,"default","WangJiebin",Permission.Action.READ);
             Permission.Action actions = Permission.Action.READ;
             ht.revoke(HBaseApiTest.configuration,"unsensitive","WangJiebin","", "", actions);
             */
@@ -402,7 +416,8 @@ public class HBaseApiTest {
             Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration);
             //krbOpen == true
 //            Connection hbaseConn  = ConnectionFactory.createConnection(HBaseApiTest.configuration);
-            upList = ht.getPermissions(hbaseConn,"unsensitive");
+//            upList = ht.getPermissions(hbaseConn,"unsensitive");
+            ht.creatNamespace(hbaseConn, "test_ns1");
 //            List<String> tables = ht.queryTable(hbaseConn);
 //            List<String> familys = ht.queryFamilies(hbaseConn,"dw_hbase_nsr");
 //            Result result = ht.find(hbaseConn,"dw_hbase_fp","","","");

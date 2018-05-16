@@ -1,8 +1,12 @@
-package Shell4Java.JSch;
+package shell4j.JSch;
 
 /* -*-mode:java; c-basic-offset:2; indent-tabs-mode:nil -*- */
 /**
- * This program will demonstrate how to exec 'sudo' on the remote.
+ * This program will demonstrate the ssh session via HTTP proxy.
+ *   $ CLASSPATH=.:../build javac ViaHTTP.java
+ *   $ CLASSPATH=.:../build java ViaHTTP
+ * You will be asked username, hostname, proxy-server and passwd.
+ * If everything works fine, you will get the shell prompt.
  *
  */
 
@@ -10,11 +14,13 @@ import com.jcraft.jsch.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.InputStream;
-import java.io.OutputStream;
 
-public class Sudo{
+public class ViaHTTP{
     public static void main(String[] arg){
+
+        String proxy_host;
+        int proxy_port;
+
         try{
             JSch jsch=new JSch();
 
@@ -32,62 +38,25 @@ public class Sudo{
 
             Session session=jsch.getSession(user, host, 22);
 
+            String proxy=JOptionPane.showInputDialog("Enter proxy server",
+                    "hostname:port");
+            proxy_host=proxy.substring(0, proxy.indexOf(':'));
+            proxy_port=Integer.parseInt(proxy.substring(proxy.indexOf(':')+1));
+
+            session.setProxy(new ProxyHTTP(proxy_host, proxy_port));
+
+            // username and password will be given via UserInfo interface.
             UserInfo ui=new MyUserInfo();
             session.setUserInfo(ui);
+
             session.connect();
 
-            String command=JOptionPane.showInputDialog("Enter command, execed with sudo",
-                    "printenv SUDO_USER");
+            Channel channel=session.openChannel("shell");
 
-            String sudo_pass=null;
-            {
-                JTextField passwordField=(JTextField)new JPasswordField(8);
-                Object[] ob={passwordField};
-                int result=
-                        JOptionPane.showConfirmDialog(null,
-                                ob,
-                                "Enter password for sudo",
-                                JOptionPane.OK_CANCEL_OPTION);
-                if(result!=JOptionPane.OK_OPTION){
-                    System.exit(-1);
-                }
-                sudo_pass=passwordField.getText();
-            }
-
-            Channel channel=session.openChannel("exec");
-
-            // man sudo
-            //   -S  The -S (stdin) option causes sudo to read the password from the
-            //       standard input instead of the terminal device.
-            //   -p  The -p (prompt) option allows you to override the default
-            //       password prompt and use a custom one.
-            ((ChannelExec)channel).setCommand("sudo -S -p '' "+command);
-
-
-            InputStream in=channel.getInputStream();
-            OutputStream out=channel.getOutputStream();
-            ((ChannelExec)channel).setErrStream(System.err);
+            channel.setInputStream(System.in);
+            channel.setOutputStream(System.out);
 
             channel.connect();
-
-            out.write((sudo_pass+"\n").getBytes());
-            out.flush();
-
-            byte[] tmp=new byte[1024];
-            while(true){
-                while(in.available()>0){
-                    int i=in.read(tmp, 0, 1024);
-                    if(i<0)break;
-                    System.out.print(new String(tmp, 0, i));
-                }
-                if(channel.isClosed()){
-                    System.out.println("exit-status: "+channel.getExitStatus());
-                    break;
-                }
-                try{Thread.sleep(1000);}catch(Exception ee){}
-            }
-            channel.disconnect();
-            session.disconnect();
         }
         catch(Exception e){
             System.out.println(e);
@@ -121,9 +90,7 @@ public class Sudo{
                 passwd=passwordField.getText();
                 return true;
             }
-            else{
-                return false;
-            }
+            else{ return false; }
         }
         public void showMessage(String message){
             JOptionPane.showMessageDialog(null, message);
@@ -186,5 +153,8 @@ public class Sudo{
             }
         }
     }
+
 }
+
+
 

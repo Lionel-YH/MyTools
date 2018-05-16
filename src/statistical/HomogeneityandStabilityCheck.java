@@ -1,6 +1,4 @@
-package Statistical;
-
-import java.util.ArrayList;
+package statistical;
 
 public class HomogeneityandStabilityCheck {
 

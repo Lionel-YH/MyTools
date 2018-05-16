@@ -1,4 +1,4 @@
-package Shell4Java;
+package shell4j;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

@@ -1,4 +1,4 @@
-package Statistical;
+package statistical;
 
 
 public class ConfirmStdDeviation {

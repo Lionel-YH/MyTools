@@ -1,12 +1,14 @@
 package coding.leetcode;
-
 import java.util.*;
 
+/**
+ * Given a string, find the length of the longest substring without repeating characters.
+ */
 public class LengthOfLongestSubstring {
     //My Solution
     public int lengthOfLongestSubstring1(String s) {
-        List<Object> queue = new ArrayList<>();
-        Set<Object> set = new HashSet<>();
+        List<Character> queue = new ArrayList<>();
+        Set<Character> set = new HashSet<>();
         int result = 0;
         int len = s.length();
         for(int i=0;i<len;i++){
@@ -16,7 +18,7 @@ public class LengthOfLongestSubstring {
                 queue.add(c);
             }else{
                 if(queue.size()>result) result = queue.size();
-                while((char)queue.get(0)!=c){
+                while(queue.get(0)!=c){
                     queue.remove(0);
                 }
                 queue.remove(0);
