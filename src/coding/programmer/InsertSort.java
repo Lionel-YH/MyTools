@@ -31,7 +31,7 @@ public class InsertSort {
 	}
 	
 	private static ArrayList<Integer> createList(int num){
-		ArrayList<Integer> list=new ArrayList<>();
+		ArrayList<Integer> list=new ArrayList<Integer>();
 		for(int i=0;i<num;i++){
 			list.add((int)(Math.random()*num));
 		}

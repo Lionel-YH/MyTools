@@ -19,8 +19,8 @@ import java.util.regex.Pattern;
 public class StringUtils extends org.apache.commons.lang.StringUtils{
 
 	public static void main(String[] args){
-		Set<String> setOne = new HashSet<>();
-		Set<String> setTwo = new HashSet<>();
+		Set<String> setOne = new HashSet<String>();
+		Set<String> setTwo = new HashSet<String>();
 		String str = new String("first");
 		setOne.add("first");
 		setTwo.add(str);
