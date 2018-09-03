@@ -114,7 +114,7 @@ public class Algorithm {
                 s_ = newS_;
             }
         }
-        return new Pair<>(x_,s_);
+        return new Pair<Double, Double>(x_,s_);
     }
 
     public double methodS(double[][] matrix){
@@ -150,7 +150,7 @@ public class Algorithm {
         int p = size;
         System.out.println("array的长度："+size);
         double[] d = new double[p*(p-1)/2];
-        List<Double> dd = new ArrayList<>();
+        List<Double> dd = new ArrayList<Double>();
         for(int i=0;i<p-1;i++){
             for(int j=i+1;j<p;j++){
                 dd.add(Math.abs(Arith.sub(array[i],array[j])));
@@ -197,7 +197,7 @@ public class Algorithm {
         double s2d = Arith.div(calErrorSquare(d,d_mean),Math.sqrt(size));
         double u2d = Arith.div(s2d,size-1);
         double u_char = Math.sqrt(Arith.add(Arith.mul(u_crm,u_crm),Arith.mul(u2d,u2d)));
-        return new Pair<>(x_pt,u_char);
+        return new Pair<Double,Double>(x_pt,u_char);
     }
 
     public Pair<Double,Double> confirm(double[] array) {
@@ -206,7 +206,7 @@ public class Algorithm {
         double x_pt = pair.getKey();
         double s_ = pair.getValue();
         double uncertain =  Arith.mul(1.25,Arith.div(s_,Math.sqrt(size)));
-        return new Pair<>(x_pt,uncertain);
+        return new Pair<Double,Double>(x_pt,uncertain);
     }
 
     public double hampel(double[][] matrix) {
@@ -217,8 +217,8 @@ public class Algorithm {
             double[] lab_i = matrix[i];
             data_y[i] = Arith.div(sum(lab_i),lab_i.length);
         }
-        List<Double> data_d = new ArrayList<>();
-        List<Double> result = new ArrayList<>();
+        List<Double> data_d = new ArrayList<Double>();
+        List<Double> result = new ArrayList<Double>();
         for(double d:data_y){
             data_d.add(Arith.sub(d,Arith.mul(4.5,S)));
             data_d.add(Arith.sub(d,Arith.mul(3,S)));
@@ -293,7 +293,7 @@ public class Algorithm {
     }
 
     public double calculateS(double[][] matrix) {
-        List<Double> x_sorted_list = new ArrayList<>();
+        List<Double> x_sorted_list = new ArrayList<Double>();
         for(int j=0;j<matrix.length;j++){
             double[] lab_j = matrix[j];
             for(int i=0;i<j;i++){
@@ -309,7 +309,7 @@ public class Algorithm {
         }
         Collections.sort(x_sorted_list);
 
-        List<Double> G_function_value = new ArrayList<>();
+        List<Double> G_function_value = new ArrayList<Double>();
         for(int index=0;index<x_sorted_list.size();index++){
             double item = x_sorted_list.get(index);
             if(0==index&&item>0){

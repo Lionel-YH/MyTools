@@ -29,7 +29,7 @@ public class CollectionUtil {
      * @return
      */
     public static <K,V> List<K>  map2list(Map<K,V> map){
-        List<K> resultList = new ArrayList<>();
+        List<K> resultList = new ArrayList<K>();
         Set<K> entrySet = map.keySet();
         Iterator<K> it = entrySet.iterator();
         while(it.hasNext()){
@@ -49,14 +49,14 @@ public class CollectionUtil {
      * @return
      */
     public static <E extends ArrayList>  Map<Object,List<E>>  List2Map(List<E> list,int index){
-        Map<Object,List<E>> resultMap = new HashMap<>();
+        Map<Object,List<E>> resultMap = new HashMap<Object,List<E>>();
         Iterator<E> it = list.iterator();
         while(it.hasNext()){
             E ele = it.next();
             Object k = ele.get(index);
             List<E> values = resultMap.get(k);
             if(values==null){
-                values = new ArrayList<>();
+                values = new ArrayList<E>();
                 values.add(ele);
                 resultMap.put(k,values);
             }else {

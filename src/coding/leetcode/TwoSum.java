@@ -19,7 +19,7 @@ public class TwoSum {
 
     //Approach #2 (Two-pass Hash Table)
     public int[] twoSum2(int[] nums, int target) {
-        Map<Integer, Integer> map = new HashMap<>();
+        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
         for (int i = 0; i < nums.length; i++) {
             map.put(nums[i], i);
         }
@@ -34,7 +34,7 @@ public class TwoSum {
 
     //Approach #3 (One-pass Hash Table)
     public int[] twoSum3(int[] nums, int target) {
-        Map<Integer, Integer> map = new HashMap<>();
+        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
         for (int i = 0; i < nums.length; i++) {
             int complement = target - nums[i];
             if (map.containsKey(complement)) {

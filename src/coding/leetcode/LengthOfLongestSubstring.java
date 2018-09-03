@@ -7,8 +7,8 @@ import java.util.*;
 public class LengthOfLongestSubstring {
     //My Solution
     public int lengthOfLongestSubstring1(String s) {
-        List<Character> queue = new ArrayList<>();
-        Set<Character> set = new HashSet<>();
+        List<Character> queue = new ArrayList<Character>();
+        Set<Character> set = new HashSet<Character>();
         int result = 0;
         int len = s.length();
         for(int i=0;i<len;i++){
@@ -23,7 +23,7 @@ public class LengthOfLongestSubstring {
                 }
                 queue.remove(0);
                 queue.add(c);
-                set = new HashSet<>(queue);
+                set = new HashSet<Character>(queue);
             }
         }
         return queue.size()>result?queue.size():result;
@@ -32,7 +32,7 @@ public class LengthOfLongestSubstring {
     //Approach #2 Sliding Window
     public int lengthOfLongestSubstring2(String s) {
         int n = s.length();
-        Set<Character> set = new HashSet<>();
+        Set<Character> set = new HashSet<Character>();
         int ans = 0, i = 0, j = 0;
         while (i < n && j < n) {
             // try to extend the range [i, j]
@@ -50,7 +50,7 @@ public class LengthOfLongestSubstring {
     //Approach #3 Sliding Window Optimized
     public int lengthOfLongestSubstring3(String s) {
         int n = s.length(), ans = 0;
-        Map<Character, Integer> map = new HashMap<>(); // current index of character
+        Map<Character, Integer> map = new HashMap<Character, Integer>(); // current index of character
         // try to extend the range [i, j]
         for (int j = 0, i = 0; j < n; j++) {
             if (map.containsKey(s.charAt(j))) {
