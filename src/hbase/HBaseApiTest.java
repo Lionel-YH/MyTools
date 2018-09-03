@@ -29,11 +29,11 @@ public class HBaseApiTest {
         if(krbOpen){
             Configuration conf = new Configuration();
             conf.set("hbase.zookeeper.property.maxclientcnxns", "300");
-            System.setProperty("hadoop.home.dir", "D:\\Environment\\hadoop-2.7.4");
+            System.setProperty("hadoop.home.dir", "/Users/Leo/Developer/Environment/hadoop-2.7.4");
             conf.set("hbase.ipc.client.socket.timeout.connect","1000");
             conf.set("zookeeper.session.timeout", "500");
             conf.set("hbase.regionserver.handler.count", "500");
-            System.setProperty("java.security.krb5.conf","D:\\Config\\keytab_68\\krb5.conf");
+            System.setProperty("java.security.krb5.conf","/Users/Leo/Developer/Config/keytab_68/krb5.conf");
             conf.set("hadoop.security.authentication","kerberos");
             conf.set("hbase.master.kerberos.principal","hbase/_HOST@AISINO.COM");//从Hbase-site.xml文件中获取配置信息
             conf.set("hbase.regionserver.kerberos.principal","hbase/_HOST@AISINO.COM");//从Hbase-site.xml文件中获取配置信息
@@ -44,7 +44,7 @@ public class HBaseApiTest {
 
             //kerberos认证用户部分,必须使用此方法登录，不然会连接不上
             try {
-                UserGroupInformation.loginUserFromKeytab("hbase/bin01.novalocal@AISINO.COM","D:\\Config\\keytab_68\\hbase.keytab");
+                UserGroupInformation.loginUserFromKeytab("hbase/bin01.novalocal@AISINO.COM","/Users/Leo/Developer/Config/keytab_68/hbase.keytab");
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
