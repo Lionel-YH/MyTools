@@ -185,5 +185,11 @@
 			<artifactId>jsch</artifactId>
 			<version>0.1.54</version>
 		</dependency>
+		<dependency>
+			<groupId>io.kubernetes</groupId>
+			<artifactId>client-java</artifactId>
+			<version>5.0.0</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 </project>
